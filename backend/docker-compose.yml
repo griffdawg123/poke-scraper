@@ -1,11 +1,4 @@
 services:
-  app:
-    build: .
-    volumes:
-      - .:/app  # Optional: for local file syncing
-    command: python main.py  # Optional: override CMD in Dockerfile
-    ports:
-      - "8080:5000"
   db:
     image: mysql:8
     container_name: mysql-db
@@ -19,6 +12,20 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-
+  app:
+    build: .
+    volumes:
+      - .:/app  # Optional: for local file syncing
+    depends_on:
+      - db
+    entrypoint: [ "./wait-for-it.sh", "db:3306", 
+      "--"]  # Optional: override CMD in Dockerfile
+    command: python main.py
+    ports:
+      - "8080:5000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db
 volumes:
   db_data:
