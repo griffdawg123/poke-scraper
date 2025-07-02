@@ -75,6 +75,33 @@ def reset_database_route():
     else:
         return 'Database connection is not established.', 500
 
+@app.route('/pokemon')
+def get_pokemon():
+    """Endpoint to get a list of Pokémon."""
+    if db_connection:
+        try:
+            cursor = db_connection.cursor()
+            cursor.execute("SELECT * FROM Pokemon")
+            pokemon_list = cursor.fetchall()
+            return {'pokemon': pokemon_list}, 200
+        except Exception as e:
+            return f'Error fetching Pokémon: {str(e)}', 500
+    else:
+        return 'Database connection is not established.', 500
+
+@app.route('/tables/<table_name>')
+def read_table(table_name):
+    """Endpoint to read a specific table."""
+    if db_connection:
+        try:
+            cursor = db_connection.cursor()
+            cursor.execute(f"SELECT * FROM {table_name}")
+            rows = cursor.fetchall()
+            return {'rows': rows}, 200
+        except Exception as e:
+            return f'Error reading table {table_name}: {str(e)}', 500
+    else:
+        return 'Database connection is not established.', 500
 
 if __name__ == '__main__':
 

@@ -60,3 +60,23 @@ def drop_tables(conn):
         cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
     conn.commit()
     return "All tables have been dropped."
+
+def insert_data(conn, table_name, data, columns=None):
+    """
+    Insert data into a specific table.
+    """
+    if not conn:
+        return "No database connection established."
+    cursor = conn.cursor()
+    placeholders = ', '.join(['%s'] * len(data[0]))
+    if columns:
+        column_names = ', '.join(columns)
+        query = f"INSERT INTO {table_name} ({column_names}) VALUES ({placeholders})"
+    else:
+        query = f"INSERT INTO {table_name} VALUES ({placeholders})"
+    try:
+        cursor.executemany(query, data)
+        conn.commit()
+        return f"Inserted {len(data)} rows into {table_name}."
+    except Exception as e:
+        return f"Error inserting data into {table_name}: {e}"
